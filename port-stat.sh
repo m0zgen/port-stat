@@ -32,12 +32,16 @@ function check_mac_ip {
 function check_os {
   if [ -f /etc/redhat-release ]; then
     OS="CentOS"
+    check_linux_ip
   elif [ -f /etc/debian_version ]; then
     OS="Debian"
+    check_linux_ip
   elif [ -f /etc/lsb-release ]; then
     OS="Ubuntu"
+    check_linux_ip
   elif [ "$(uname)" == "Darwin" ]; then
     OS="macOS"
+    check_mac_ip
   else
     echo "Looks like you aren't running this installer on CentOS, Ubuntu, Debian or macOS"
     exit 1
@@ -47,18 +51,5 @@ function check_os {
 # Detct OS
 # -------------------------------------------------------------------------------------------\
 check_os
-
-if [ "$OS" == "macOS" ]; then
-    check_mac_ip
-elif [ "$OS" == "CentOS" ]; then
-  check_linux_ip
-elif [ "$OS" == "Debian" ]; then
-  check_linux_ip
-elif [ "$OS" == "Ubuntu" ]; then
-  check_linux_ip
-else
-  echo "Looks like you aren't running this installer on CentOS, Ubuntu, Debian or macOS"
-  exit 1
-fi
 
 echo -e "Host name: $HOSTNAME (OS: $OS, IP: $IP_ADDRESS)"
