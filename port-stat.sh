@@ -14,6 +14,64 @@ HOSTNAME=$(hostname)
 
 # Functions
 # -------------------------------------------------------------------------------------------\
+
+# Get arguments
+# -------------------------------------------------------------------------------------------\
+while [[ $# -gt 0 ]]; do
+  key="$1"
+  case $key in
+    -h|--help)
+      echo -e "Usage: $0 [options]"
+      echo -e "Options:"
+      echo -e "  -h, --help\t\t\tShow brief help"
+      echo -e "  -p, --port\t\t\tShow port statistic"
+      echo -e "  -s, --state\t\t\tShow port state"
+      echo -e "  -a, --app\t\t\tShow stat for defined app"
+      echo -e "Default:"
+      echo -e "  - Shows all listen ports"
+      exit 0
+      ;;
+    -p|--port)
+      PORT="$2"
+      shift
+      ;;
+    -s|--state)
+      STATE="$2"
+      shift
+      ;;
+    -a|--app)
+      ALL="$2"
+      shift
+      ;;
+    *)
+      echo -e "Unknown option: $1"
+      exit 1
+      ;;
+  esac
+  shift
+done
+
+# Functions
+# -------------------------------------------------------------------------------------------\
+
+# Function check netstat exists
+function check_netstat {
+  if ! [ -x "$(command -v netstat)" ]; then
+    return 1
+  else
+    return 0
+  fi
+}
+
+# Function check lsof exists and return true or false
+function check_lsof_exists {
+  if ! [ -x "$(command -v lsof)" ]; then
+    return 1
+  else
+    return 0
+  fi
+}
+
 function check_root {
   if [ "$(id -u)" != "0" ]; then
     echo "This script must be run as root"
@@ -48,8 +106,21 @@ function check_os {
   fi
 }
 
+function check_port_state {
+    lsof -iTCP -sTCP:LISTEN -n -P
+}
+
+function show_all_listen_ports {
+    # lsof -i -n -P
+    lsof -i -n -P | egrep 'COMMAND|ESTABLISHED|LISTEN|UDP|TCP'
+}
+
+# lsof chow UDP ports
+# lsof -iUDP -sUDP:LISTEN -n -P
+
 # Detct OS
 # -------------------------------------------------------------------------------------------\
 check_os
 
-echo -e "Host name: $HOSTNAME (OS: $OS, IP: $IP_ADDRESS)"
+echo -e "Host name: $HOSTNAME (OS: $OS, IP: $IP_ADDRESS)\n"
+show_all_listen_ports
