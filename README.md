@@ -7,3 +7,7 @@ Show port statistic (list of listening ports of connections)
 ```bash
 ./port-stat.sh
 ```
+
+## Status
+
+In development
