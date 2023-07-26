@@ -55,7 +55,7 @@ done
 # -------------------------------------------------------------------------------------------\
 
 # Function check netstat exists
-function check_netstat {
+function check_netstat_exists {
   if ! [ -x "$(command -v netstat)" ]; then
     return 1
   else
@@ -115,6 +115,19 @@ function show_all_listen_ports {
     lsof -i -n -P | egrep 'COMMAND|ESTABLISHED|LISTEN|UDP|TCP'
 }
 
+function check_net_utils {
+  if check_netstat_exists; then
+    echo -e 'NETSTAT Exists'
+    NET_TOOL='netstat'
+  elif check_lsof_exists; then
+    echo -e 'LSOF Exist'  
+    NET_TOOL='lsof'
+  else
+    echo -e 'NETSTAT or LSOF not found. Exiting...'
+    exit 1
+  fi
+}
+
 # lsof chow UDP ports
 # lsof -iUDP -sUDP:LISTEN -n -P
 
@@ -123,4 +136,11 @@ function show_all_listen_ports {
 check_os
 
 echo -e "Host name: $HOSTNAME (OS: $OS, IP: $IP_ADDRESS)\n"
-show_all_listen_ports
+
+# Check net utils
+check_net_utils
+
+# show_all_listen_ports
+
+
+
